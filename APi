@@ -1,0 +1,89 @@
+#######################################
+##This API call will create a new patient record 
+##Endpoint: POST /api/patients
+##Request Body:
+#######################################
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john.doe@example.com",
+  "phone": "123-456-7890",
+  "dateOfBirth": "1990-01-01",
+  "gender": "Male"
+}
+
+##Response:
+{
+  "patientId": "12345",
+  "status": "success"
+}
+
+#######################################
+##Prescribe Medication: This API call will prescribe medication for the patient.
+##Endpoint: POST /api/prescriptions
+##Request Body: 
+##React component
+########################################
+{
+  "patientId": "12345",
+  "medication": "Ibuprofen",
+  "dosage": "400mg",
+  "frequency": "Every 6 hours"
+}
+##Response:
+##json
+{
+  "prescriptionId": "98765",
+  "status": "success"
+}
+##React Component:
+##jsx
+import React, { useState } from 'react';
+import axios from 'axios';
+
+const PostInitialVisit = ({ patientId }) => {
+  const [labOrder, setLabOrder] = useState({
+    labTests: []
+  });
+
+  const [prescription, setPrescription] = useState({
+    medication: '',
+    dosage: '',
+    frequency: ''
+  });
+
+  const handleLabOrderChange = (e) => {
+    setLabOrder({ ...labOrder, [e.target.name]: e.target.value.split(',') });
+  };
+
+  const handlePrescriptionChange = (e) => {
+    setPrescription({ ...prescription, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const labOrderResponse = await axios.post('/api/lab-orders', { ...labOrder, patientId });
+      console.log('Lab order placed:', labOrderResponse.data);
+
+      const prescriptionResponse = await axios.post('/api/prescriptions', { ...prescription, patientId });
+      console.log('Prescription submitted:', prescriptionResponse.data);
+
+      // Redirect to next step or show success message
+    } catch (error) {
+      console.error('Error placing lab order or submitting prescription:', error);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input name="labTests" value={labOrder.labTests.join(',')} onChange={handleLabOrderChange} placeholder="Lab Tests" />
+      <input name="medication" value={prescription.medication} onChange={handlePrescriptionChange} placeholder="Medication" />
+      <input name="dosage" value={prescription.dosage} onChange={handlePrescriptionChange} placeholder="Dosage" />
+      <input name="frequency" value={prescription.frequency} onChange={handlePrescriptionChange} placeholder="Frequency" />
+      <button type="submit">Submit</button>
+    </form>
+  );
+};
+
+export default PostInitialVisit;
